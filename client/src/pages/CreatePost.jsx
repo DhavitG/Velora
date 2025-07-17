@@ -15,17 +15,40 @@ function CreatePost() {
   const [generatingImg, setGeneratingImg] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  function generateImage() {}
+  async function generateImage() {
+    if (form.prompt) {
+      try {
+        setGeneratingImg(true);
+        const response = await fetch("http://localhost:8080/api/v1/velora", {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({ prompt: form.prompt }),
+        });
+
+        const data = await response.json();
+        setForm({ ...form, photo: `data:image/jpeg;base64,${data.photo}` });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setGeneratingImg(false);
+      }
+    }
+    else {
+      alert("Please enter a prompt")
+    }
+  }
 
   function handleSubmit() {}
 
   function handleChange(e) {
-    setForm({...form, [e.target.name]: e.target.value})
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
   function handleSurpriseMe() {
     const randomPrompt = getRandomPrompt(form.prompt);
-    setForm({...form, prompt: randomPrompt})
+    setForm({ ...form, prompt: randomPrompt });
   }
 
   return (
@@ -98,7 +121,10 @@ function CreatePost() {
             Once you have created the image you want, you can share it with
             others in the community.
           </p>
-          <button type="submit" className="mt-3 text-white bg-[#6469ff] font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center">
+          <button
+            type="submit"
+            className="mt-3 text-white bg-[#6469ff] font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+          >
             {loading ? "Sharing..." : "Share with the community."}
           </button>
         </div>
